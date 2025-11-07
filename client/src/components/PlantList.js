@@ -1,9 +1,9 @@
 import React from 'react';
 import './PlantList.css';
 
-const PlantList = ({ plants, onEdit, onDelete }) => {
-  // Add safety check for undefined or null plants
-  if (!plants || plants.length === 0) {
+const PlantList = ({ plants = [], onEdit, onDelete }) => {
+  // Default parameter ensures plants is always an array
+  if (plants.length === 0) {
     return (
       <div className="empty-state">
         <p>No plants found. Add your first plant to get started!</p>
