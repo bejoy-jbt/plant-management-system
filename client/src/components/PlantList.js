@@ -2,7 +2,8 @@ import React from 'react';
 import './PlantList.css';
 
 const PlantList = ({ plants, onEdit, onDelete }) => {
-  if (plants.length === 0) {
+  // Add safety check for undefined or null plants
+  if (!plants || plants.length === 0) {
     return (
       <div className="empty-state">
         <p>No plants found. Add your first plant to get started!</p>
@@ -13,7 +14,7 @@ const PlantList = ({ plants, onEdit, onDelete }) => {
   return (
     <div className="plant-list">
       {plants.map(plant => (
-        <div key={plant.id} className="plant-card">
+        <div key={plant.id || plant._id} className="plant-card">
           <div className="plant-header">
             <h2>{plant.name}</h2>
             <div className="plant-actions">
@@ -25,7 +26,7 @@ const PlantList = ({ plants, onEdit, onDelete }) => {
               </button>
               <button
                 className="btn btn-danger"
-                onClick={() => onDelete(plant.id)}
+                onClick={() => onDelete(plant.id || plant._id)}
               >
                 Delete
               </button>
@@ -58,4 +59,3 @@ const PlantList = ({ plants, onEdit, onDelete }) => {
 };
 
 export default PlantList;
-
