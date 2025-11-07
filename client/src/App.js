@@ -4,7 +4,9 @@ import './App.css';
 import PlantList from './components/PlantList';
 import PlantModal from './components/PlantModal';
 
-const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
 function App() {
   const [plants, setPlants] = useState([]);
@@ -16,10 +18,21 @@ function App() {
     fetchPlants();
   }, []);
 
+  const normalizePlants = (data) => {
+    // ✅ ensure plants is always an array
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.plants)) return data.plants;
+    if (data && Array.isArray(data.data)) return data.data;
+    return [];
+  };
+
   const fetchPlants = async () => {
     try {
       const response = await axios.get(`${API_URL}/plants`);
-      setPlants(response.data);
+      console.log("API response:", response.data);
+
+      const plantArray = normalizePlants(response.data);
+      setPlants(plantArray);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching plants:', error);
@@ -30,7 +43,10 @@ function App() {
   const handleAddPlant = async (plantData) => {
     try {
       const response = await axios.post(`${API_URL}/plants`, plantData);
-      setPlants([...plants, response.data]);
+
+      const newPlant = normalizePlants(response.data)[0] || response.data;
+      setPlants([...plants, newPlant]);
+
       setShowModal(false);
     } catch (error) {
       console.error('Error adding plant:', error);
@@ -41,7 +57,11 @@ function App() {
   const handleUpdatePlant = async (id, plantData) => {
     try {
       const response = await axios.put(`${API_URL}/plants/${id}`, plantData);
-      setPlants(plants.map(plant => plant.id === id ? response.data : plant));
+
+      const updatedPlant = normalizePlants(response.data)[0] || response.data;
+
+      setPlants(plants.map(p => (p.id === id ? updatedPlant : p)));
+
       setEditingPlant(null);
       setShowModal(false);
     } catch (error) {
@@ -110,4 +130,3 @@ function App() {
 }
 
 export default App;
-
